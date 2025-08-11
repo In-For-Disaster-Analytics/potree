@@ -72,6 +72,9 @@ export class AnnotationPanel{
 			annotation.description = description;
 		}, false);
 
+		// Listen for changes from the map annotation editing
+		annotation.addEventListener("annotation_changed", this._update);
+
 		this.update();
 	}
 
@@ -87,5 +90,11 @@ export class AnnotationPanel{
 		elDescription.html(annotation.description);
 
 
+	}
+
+	dispose(){
+		if(this.annotation && this._update){
+			this.annotation.removeEventListener("annotation_changed", this._update);
+		}
 	}
 };

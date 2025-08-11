@@ -75,6 +75,15 @@ export class Annotation extends EventDispatcher {
 		};
 
 		this.elTitle.click(this.clickTitle);
+		this.elTitle.dblclick((e) => {
+			e.stopPropagation();
+			this.startEditingTitle();
+		});
+		
+		this.elDescription.find('.annotation-description-content').dblclick((e) => {
+			e.stopPropagation();
+			this.startEditingDescription();
+		});
 
 		this.actions = this.actions.map(a => {
 			if (a instanceof Action) {
@@ -560,6 +569,87 @@ export class Annotation extends EventDispatcher {
 			}
 		}
 	};
+
+	startEditingTitle() {
+		if (this.elTitle.find('input').length > 0) {
+			return; // Already editing
+		}
+
+		const currentTitle = this._title;
+		const input = $(`<input type="text" class="annotation-title-edit" value="${currentTitle}">`);
+		
+		this.elTitle.empty().append(input);
+		this.domElement.addClass('annotation-editing');
+		
+		input.focus().select();
+		
+		const finishEditing = (save = true) => {
+			if (save) {
+				const newTitle = input.val().trim();
+				if (newTitle !== currentTitle) {
+					this.title = newTitle || 'Untitled';
+				}
+			}
+			this.elTitle.empty().append(this._title);
+			this.domElement.removeClass('annotation-editing');
+		};
+		
+		input.on('blur', () => finishEditing(true));
+		input.on('keydown', (e) => {
+			if (e.key === 'Enter') {
+				e.preventDefault();
+				finishEditing(true);
+			} else if (e.key === 'Escape') {
+				e.preventDefault();
+				finishEditing(false);
+			}
+		});
+	}
+
+	startEditingDescription() {
+		const descriptionContent = this.elDescription.find('.annotation-description-content');
+		if (descriptionContent.find('textarea').length > 0) {
+			return; // Already editing
+		}
+
+		const currentDescription = this._description;
+		const textarea = $(`<textarea class="annotation-description-edit">${currentDescription}</textarea>`);
+		
+		descriptionContent.empty().append(textarea);
+		this.domElement.addClass('annotation-editing');
+		
+		textarea.focus().select();
+		
+		// Auto-resize textarea to content
+		const autoResize = () => {
+			textarea[0].style.height = 'auto';
+			textarea[0].style.height = Math.min(textarea[0].scrollHeight, 200) + 'px';
+		};
+		autoResize();
+		textarea.on('input', autoResize);
+		
+		const finishEditing = (save = true) => {
+			if (save) {
+				const newDescription = textarea.val().trim();
+				if (newDescription !== currentDescription) {
+					this.description = newDescription;
+				}
+			}
+			descriptionContent.empty().append(this._description);
+			this.domElement.removeClass('annotation-editing');
+		};
+		
+		textarea.on('blur', () => finishEditing(true));
+		textarea.on('keydown', (e) => {
+			if (e.key === 'Enter' && e.ctrlKey) {
+				e.preventDefault();
+				finishEditing(true);
+			} else if (e.key === 'Escape') {
+				e.preventDefault();
+				finishEditing(false);
+			}
+		});
+	}
 
 	dispose () {
 		if (this.domElement.parentElement) {
