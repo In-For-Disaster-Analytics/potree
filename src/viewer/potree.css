@@ -301,6 +301,44 @@ a:hover, a:visited, a:link, a:active{
 	color:			white;
 }
 
+.annotation-title-edit,
+.annotation-description-edit{
+	background-color:	rgba(255, 255, 255, 0.1);
+	border:			1px solid rgba(255, 255, 255, 0.5);
+	border-radius:		2px;
+	color:			white;
+	font-family:		Arial;
+	font-weight:		bold;
+	font-size:		inherit;
+	padding:		2px 4px;
+	outline:		none;
+	width:			100%;
+	box-sizing:		border-box;
+}
+
+.annotation-title-edit{
+	height:			1.5em;
+	line-height:		1.5em;
+	white-space:		nowrap;
+}
+
+.annotation-description-edit{
+	resize:			vertical;
+	min-height:		1.5em;
+	max-height:		200px;
+}
+
+.annotation-title-edit:focus,
+.annotation-description-edit:focus{
+	background-color:	rgba(255, 255, 255, 0.2);
+	border-color:		rgba(255, 255, 255, 0.8);
+}
+
+.annotation-editing .annotation-label,
+.annotation-editing .annotation-description-content{
+	cursor:			text;
+}
+
 .annotation-icon{
 	width:		20px;
 	height:		20px;
