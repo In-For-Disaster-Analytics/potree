@@ -112,7 +112,7 @@ Potree Converter → Process point cloud data through multiple steps:
 **Objective**: Register processed point cloud data as discoverable resources in the CKAN data portal.
 
 ```mermaid
-%%{ init : { "theme" : "neutral" }}}%%
+%%{ init : { "theme" : "neutral", "themeVariables" : { "primaryColor" : "#fff", "primaryTextColor" : "#000", "primaryBorderColor" : "#000", "lineColor" : "#000", "secondaryColor" : "#f8f8f8", "tertiaryColor" : "#f0f0f0" }}}%%
 sequenceDiagram
     participant User as 👤 User/Researcher
     participant Tapis as ⚙️ Tapis Platform
@@ -186,7 +186,7 @@ sequenceDiagram
 **Objective**: Enable users to find, evaluate, and access point cloud visualizations through the CKAN portal.
 
 ```mermaid
-%%{ init : { "theme" : "neutral" }}}%%
+%%{ init : { "theme" : "neutral", "themeVariables" : { "primaryColor" : "#fff", "primaryTextColor" : "#000", "primaryBorderColor" : "#000", "lineColor" : "#000", "secondaryColor" : "#f8f8f8", "tertiaryColor" : "#f0f0f0" }}}%%
 sequenceDiagram
     participant User as 👤 User/Researcher
     participant Tapis as ⚙️ Tapis Platform
@@ -261,7 +261,7 @@ sequenceDiagram
 **Objective**: Provide interactive 3D point cloud visualization with full analysis capabilities.
 
 ```mermaid
-%%{ init : { "theme" : "neutral" }}}%%
+%%{ init : { "theme" : "neutral", "themeVariables" : { "primaryColor" : "#fff", "primaryTextColor" : "#000", "primaryBorderColor" : "#000", "lineColor" : "#000", "secondaryColor" : "#f8f8f8", "tertiaryColor" : "#f0f0f0" }}}%%
 sequenceDiagram
     participant User as 👤 User/Researcher
     participant Tapis as ⚙️ Tapis Platform
@@ -336,7 +336,7 @@ Browser → Real-time 3D rendering and visualization
 **Objective**: Enable persistent data analysis, team collaboration, and long-term data sharing.
 
 ```mermaid
-%%{ init : { "theme" : "neutral" }}}%%
+%%{ init : { "theme" : "neutral", "themeVariables" : { "primaryColor" : "#fff", "primaryTextColor" : "#000", "primaryBorderColor" : "#000", "lineColor" : "#000", "secondaryColor" : "#f8f8f8", "tertiaryColor" : "#f0f0f0" }}}%%
 sequenceDiagram
     participant User as 👤 User/Researcher
     participant Tapis as ⚙️ Tapis Platform
