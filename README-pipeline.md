@@ -14,21 +14,32 @@ This streamlined LiDAR processing pipeline transforms raw point cloud data into 
 %%{ init : { "theme" : "neutral", "themeVariables" : { "primaryColor" : "#fff", "primaryTextColor" : "#000", "primaryBorderColor" : "#000", "lineColor" : "#000", "secondaryColor" : "#f8f8f8", "tertiaryColor" : "#f0f0f0" }}}%%
 sequenceDiagram
     participant User as 👤 User/Researcher
+    participant DataX as 📊 DataX Platform
     participant Tapis as ⚙️ Tapis Platform
     participant Potree as 🔧 Potree Converter
     participant Corral as 💾 Corral Storage
-    participant Target as 🌐 Target Web Server
-    participant CKAN as 📚 CKAN Portal
-    participant Browser as 🌍 Browser/Client
 
-    Note over User,Browser: LiDAR Data Processing & Deployment Pipeline
+    Note over User,Corral: LiDAR Data Processing & Deployment Pipeline
 
     %% Processing Submission
     rect rgb(230, 245, 255)
-        Note over User,Potree: Phase 1: Processing Submission & Conversion
-        User->>Tapis: Submit  Potree Converter Cookbook
+        Note over User,Corral: Phase 1: Processing Submission & Conversion
+        User->>DataX: Request cookbooks (Tapis APP)
+        DataX-->>Tapis: Forward request for cookbooks
+        Tapis-->>DataX: Provide Tapis cookbooks
+        DataX-->>User: Provide Tapis cookbooks
+
+        User->>DataX: Select Potree Converter Cookbook
+        DataX-->>Tapis: Forward request for cookbooks
+        Tapis-->>DataX: Provide Tapis cookbooks
+        DataX-->>User: Provide Cook Details
+
+        User->>DataX: Submit  Potree Converter Cookbook
         Note right of User: Parameters:<br/>- Input: LAS file path<br/>- Output: web directory<br/>- Converter settings
 
+        DataX-->>Tapis: Forward request for cookbooks
+        Tapis-->>DataX: Job response
+        DataX-->>User: Provide job status
         Tapis->>Corral: Read LAS files
         Corral-->>Tapis: Return LAS data
 
@@ -125,11 +136,8 @@ sequenceDiagram
     %% CKAN Registration Phase
     rect rgb(230, 245, 255)
         Note over User,CKAN: Phase 2: CKAN Registration & Cataloging
-        User->>CKAN: Register resource
+        User->>CKAN: Register and upload JSON5 resource
         Note right of User: Parameters info:<br/>- JSON5 file
-
-        User->>CKAN: Upload Potree JSON5 file
-        Note right of CKAN: CKAN recognizes<br/>Potree file type
 
         CKAN->>CKAN: Extract metadata from JSON5 [FUTURE]
         Note right of CKAN: Auto-extracted:<br/>- Bounding box<br/>- Classification types<br/>- Coordinate system<br/>- View parameters
@@ -264,16 +272,14 @@ sequenceDiagram
 %%{ init : { "theme" : "neutral", "themeVariables" : { "primaryColor" : "#fff", "primaryTextColor" : "#000", "primaryBorderColor" : "#000", "lineColor" : "#000", "secondaryColor" : "#f8f8f8", "tertiaryColor" : "#f0f0f0" }}}%%
 sequenceDiagram
     participant User as 👤 User/Researcher
-    participant Tapis as ⚙️ Tapis Platform
-    participant Potree as 🔧 Potree Converter
-    participant Corral as 💾 Corral Storage
-    participant Target as 🌐 Target Web Server
-    participant CKAN as 📚 CKAN Portal
     participant Browser as 🌍 Browser/Client
+    participant Target as 🌐 Web Server
+    participant Corral as 💾 Corral Storage
 
     %% Visualization Phase
     rect rgb(230, 245, 255)
-        Note over Browser,Target: Phase 4: Local Visualization
+        Note over User,Corral: Phase 4: Local Visualization
+        User->>Browser: Open Potree viewer
         Browser->>Target: Load Potree viewer application
         Target-->>Browser: Return viewer files
 
@@ -281,8 +287,11 @@ sequenceDiagram
         Target-->>Browser: Return local config
 
         Browser->>Target: Request point cloud data
+
         Note right of Browser: Adaptive loading<br/>based on view level
 
+        Target-->>Corral: Request octree tiles
+        Corral-->>Target: Return octree tiles
         Target-->>Browser: Stream octree tiles locally
         Browser->>Browser: Render 3D visualization
 
@@ -339,8 +348,6 @@ Browser → Real-time 3D rendering and visualization
 %%{ init : { "theme" : "neutral", "themeVariables" : { "primaryColor" : "#fff", "primaryTextColor" : "#000", "primaryBorderColor" : "#000", "lineColor" : "#000", "secondaryColor" : "#f8f8f8", "tertiaryColor" : "#f0f0f0" }}}%%
 sequenceDiagram
     participant User as 👤 User/Researcher
-    participant Tapis as ⚙️ Tapis Platform
-    participant Potree as 🔧 Potree Converter
     participant Corral as 💾 Corral Storage
     participant Target as 🌐 Target Web Server
     participant CKAN as 📚 CKAN Portal
@@ -348,7 +355,6 @@ sequenceDiagram
 
     %% Collaboration & Sharing
     rect rgb(230, 245, 255)
-        Note over Browser,Target: Phase 4: Local Visualization
         Note over User,Target: Phase 5: Collaboration & Sharing
         User->>Browser: Create annotations/measurements
         Browser->>Target: Save user data
