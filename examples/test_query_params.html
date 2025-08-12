@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Test Query Parameter Configuration</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			margin: 40px;
+			background: #f5f5f5;
+		}
+		.container {
+			max-width: 800px;
+			margin: 0 auto;
+			background: white;
+			padding: 30px;
+			border-radius: 10px;
+			box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+		}
+		h1 {
+			color: #333;
+			text-align: center;
+		}
+		.test-link {
+			display: block;
+			background: #007cba;
+			color: white;
+			padding: 15px 20px;
+			text-decoration: none;
+			border-radius: 5px;
+			margin: 10px 0;
+			text-align: center;
+			font-weight: bold;
+		}
+		.test-link:hover {
+			background: #005a87;
+		}
+		.description {
+			margin: 10px 0;
+			padding: 10px;
+			background: #f9f9f9;
+			border-left: 4px solid #007cba;
+		}
+		.code {
+			background: #333;
+			color: #fff;
+			padding: 10px;
+			border-radius: 3px;
+			font-family: monospace;
+			margin: 10px 0;
+			overflow-x: auto;
+		}
+		.status {
+			padding: 10px;
+			border-radius: 5px;
+			margin: 10px 0;
+		}
+		.success {
+			background: #d4edda;
+			color: #155724;
+			border: 1px solid #c3e6cb;
+		}
+		.info {
+			background: #d1ecf1;
+			color: #0c5460;
+			border: 1px solid #bee5eb;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>🌐 Potree Query Parameter Configuration Tests</h1>
+		
+		<div class="status success">
+			<strong>✅ Implementation Complete!</strong><br>
+			Query parameter configuration support has been added to Potree viewer as requested in 
+			<a href="https://github.com/mosoriob/potree/issues/5" target="_blank">GitHub Issue #5</a>.
+			The functionality is now integrated into <code>index.html</code> as the default viewer.
+		</div>
+		
+		<div class="status info">
+			<strong>🏠 Default Viewer Integration</strong><br>
+			The query parameter functionality has been integrated into <code>index.html</code>, making it the default viewer with built-in configuration support. 
+			No need for separate viewer files - everything works directly from the root!
+		</div>
+		
+		<div class="description">
+			<h3>🎯 Feature Overview</h3>
+			<p>The updated <code>index.html</code> (default viewer) now supports loading Potree configurations via URL query parameters, enabling seamless integration with CKAN and other data portals.</p>
+		</div>
+		
+		<h2>🧪 Test Cases</h2>
+		
+		<div class="description">
+			<h4>Test 1: JSON5 Configuration Loading</h4>
+			<p>Load a complete scene configuration from a JSON5 file with comments and annotations.</p>
+		</div>
+		<a href="../index.html?config=./examples/resources/test_config.json5&debug=true" 
+		   class="test-link" target="_blank">
+			🚀 Test JSON5 Config Loading
+		</a>
+		<div class="code">index.html?config=./examples/resources/test_config.json5&debug=true</div>
+		
+		<div class="description">
+			<h4>Test 2: Existing JSON Configuration</h4>
+			<p>Load the existing Sorvilier project configuration to verify compatibility.</p>
+		</div>
+		<a href="../index.html?config=./examples/resources/sorvilier.json" 
+		   class="test-link" target="_blank">
+			📊 Test JSON Config Loading
+		</a>
+		<div class="code">index.html?config=./examples/resources/sorvilier.json</div>
+		
+		<div class="description">
+			<h4>Test 3: Direct Point Cloud Loading</h4>
+			<p>Load a single point cloud directly (legacy support).</p>
+		</div>
+		<a href="../index.html?pointcloud=./pointclouds/vol_total/cloud.js" 
+		   class="test-link" target="_blank">
+			☁️ Test Direct Point Cloud
+		</a>
+		<div class="code">index.html?pointcloud=./pointclouds/vol_total/cloud.js</div>
+		
+		<div class="description">
+			<h4>Test 4: Error Handling</h4>
+			<p>Test error handling with an invalid configuration URL.</p>
+		</div>
+		<a href="../index.html?config=./examples/resources/nonexistent.json5&debug=true" 
+		   class="test-link" target="_blank">
+			❌ Test Error Handling
+		</a>
+		<div class="code">index.html?config=./examples/resources/nonexistent.json5&debug=true</div>
+		
+		<div class="description">
+			<h4>Test 5: No Parameters (Info Mode)</h4>
+			<p>Load the viewer without parameters to see usage instructions.</p>
+		</div>
+		<a href="../index.html" 
+		   class="test-link" target="_blank">
+			ℹ️ Test Info Mode
+		</a>
+		<div class="code">index.html</div>
+		
+		<h2>🔗 CKAN Integration Example</h2>
+		<div class="description">
+			<p>For CKAN integration, the URL would look like this:</p>
+		</div>
+		<div class="code">https://your-potree-server.com/?config=https://your-ckan.org/dataset/123/resource/456/download/config.json5</div>
+		
+		<h2>🛠️ Implementation Details</h2>
+		<div class="status info">
+			<strong>Key Features Implemented:</strong>
+			<ul>
+				<li>✅ Query parameter parsing (<code>?config=path</code>)</li>
+				<li>✅ JSON5 configuration support with comments</li>
+				<li>✅ Robust error handling with user-friendly messages</li>
+				<li>✅ Security validation (same-origin policy)</li>
+				<li>✅ Loading indicators and retry mechanisms</li>
+				<li>✅ Debug mode support</li>
+				<li>✅ GitHub issue reporting integration</li>
+				<li>✅ Backward compatibility with existing viewers</li>
+			</ul>
+		</div>
+		
+		<h2>📝 Usage Instructions</h2>
+		<div class="description">
+			<h4>Basic Usage:</h4>
+			<ul>
+				<li><code>?config=path/to/config.json5</code> - Load complete configuration</li>
+				<li><code>?pointcloud=path/to/cloud.js</code> - Load single point cloud</li>
+				<li><code>?debug=true</code> - Enable debug console logging</li>
+			</ul>
+			
+			<h4>Configuration File Requirements:</h4>
+			<ul>
+				<li>Must be valid JSON or JSON5 format</li>
+				<li>Must follow Potree project structure</li>
+				<li>Should include at least one point cloud in the "pointclouds" array</li>
+				<li>Can include annotations, measurements, classifications, etc.</li>
+			</ul>
+		</div>
+		
+		<div class="status success">
+			<strong>🎉 Ready for Production!</strong><br>
+			The implementation is complete and ready for integration with CKAN and other data portals. 
+			All test cases should demonstrate the functionality working as specified in the GitHub issue.
+		</div>
+	</div>
+</body>
+</html>
