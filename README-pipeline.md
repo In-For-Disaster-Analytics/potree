@@ -24,7 +24,7 @@ sequenceDiagram
     Note over User,Browser: LiDAR Data Processing & Deployment Pipeline
 
     %% Processing Submission
-    rect
+    rect rgb(230, 245, 255)
         Note over User,Potree: Phase 1: Processing Submission & Conversion
         User->>Tapis: Submit  Potree Converter Cookbook
         Note right of User: Parameters:<br/>- Input: LAS file path<br/>- Output: web directory<br/>- Converter settings
