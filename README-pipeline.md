@@ -11,6 +11,7 @@ This streamlined LiDAR processing pipeline transforms raw point cloud data into 
 **Objective**: Convert raw LAS files into web-optimized point cloud formats using Tapis platform orchestration.
 
 ```mermaid
+%%{ init : { "theme" : "base", "themeVariables" : { "primaryColor" : "#fff", "primaryTextColor" : "#000", "primaryBorderColor" : "#000", "lineColor" : "#000", "secondaryColor" : "#f8f8f8", "tertiaryColor" : "#f0f0f0" }}}%%
 sequenceDiagram
     participant User as 👤 User/Researcher
     participant Tapis as ⚙️ Tapis Platform
@@ -111,6 +112,7 @@ Potree Converter → Process point cloud data through multiple steps:
 **Objective**: Register processed point cloud data as discoverable resources in the CKAN data portal.
 
 ```mermaid
+%%{ init : { "theme" : "base", "themeVariables" : { "primaryColor" : "#fff", "primaryTextColor" : "#000", "primaryBorderColor" : "#000", "lineColor" : "#000", "secondaryColor" : "#f8f8f8", "tertiaryColor" : "#f0f0f0" }}}%%
 sequenceDiagram
     participant User as 👤 User/Researcher
     participant Tapis as ⚙️ Tapis Platform
@@ -121,7 +123,7 @@ sequenceDiagram
     participant Browser as 🌍 Browser/Client
 
     %% CKAN Registration Phase
-    rect
+    rect rgb(230, 245, 255)
         Note over User,CKAN: Phase 2: CKAN Registration & Cataloging
         User->>CKAN: Register resource
         Note right of User: Parameters info:<br/>- JSON5 file
@@ -184,6 +186,7 @@ sequenceDiagram
 **Objective**: Enable users to find, evaluate, and access point cloud visualizations through the CKAN portal.
 
 ```mermaid
+%%{ init : { "theme" : "base", "themeVariables" : { "primaryColor" : "#fff", "primaryTextColor" : "#000", "primaryBorderColor" : "#000", "lineColor" : "#000", "secondaryColor" : "#f8f8f8", "tertiaryColor" : "#f0f0f0" }}}%%
 sequenceDiagram
     participant User as 👤 User/Researcher
     participant Tapis as ⚙️ Tapis Platform
@@ -194,7 +197,7 @@ sequenceDiagram
     participant Browser as 🌍 Browser/Client
 
     %% Discovery & Access Phase
-    rect
+    rect rgb(230, 245, 255)
         Note over User,Browser: Phase 3: Discovery & Access
         User->>CKAN: Search for point clouds
         Note right of User: Search criteria:<br/>- Geographic region<br/>- Classification types<br/>- Date range<br/>- Keywords
@@ -258,6 +261,7 @@ sequenceDiagram
 **Objective**: Provide interactive 3D point cloud visualization with full analysis capabilities.
 
 ```mermaid
+%%{ init : { "theme" : "base", "themeVariables" : { "primaryColor" : "#fff", "primaryTextColor" : "#000", "primaryBorderColor" : "#000", "lineColor" : "#000", "secondaryColor" : "#f8f8f8", "tertiaryColor" : "#f0f0f0" }}}%%
 sequenceDiagram
     participant User as 👤 User/Researcher
     participant Tapis as ⚙️ Tapis Platform
@@ -268,7 +272,7 @@ sequenceDiagram
     participant Browser as 🌍 Browser/Client
 
     %% Visualization Phase
-    rect
+    rect rgb(230, 245, 255)
         Note over Browser,Target: Phase 4: Local Visualization
         Browser->>Target: Load Potree viewer application
         Target-->>Browser: Return viewer files
@@ -332,6 +336,7 @@ Browser → Real-time 3D rendering and visualization
 **Objective**: Enable persistent data analysis, team collaboration, and long-term data sharing.
 
 ```mermaid
+%%{ init : { "theme" : "base", "themeVariables" : { "primaryColor" : "#fff", "primaryTextColor" : "#000", "primaryBorderColor" : "#000", "lineColor" : "#000", "secondaryColor" : "#f8f8f8", "tertiaryColor" : "#f0f0f0" }}}%%
 sequenceDiagram
     participant User as 👤 User/Researcher
     participant Tapis as ⚙️ Tapis Platform
@@ -342,7 +347,8 @@ sequenceDiagram
     participant Browser as 🌍 Browser/Client
 
     %% Collaboration & Sharing
-    rect
+    rect rgb(230, 245, 255)
+        Note over Browser,Target: Phase 4: Local Visualization
         Note over User,Target: Phase 5: Collaboration & Sharing
         User->>Browser: Create annotations/measurements
         Browser->>Target: Save user data
