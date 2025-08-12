@@ -23,7 +23,7 @@ sequenceDiagram
     Note over User,Browser: LiDAR Data Processing & Deployment Pipeline
 
     %% Processing Submission
-    rect rgb(240, 248, 255)
+    rect rgb(230, 245, 255)
         Note over User,Potree: Phase 1: Processing Submission & Conversion
         User->>Tapis: Submit  Potree Converter Cookbook
         Note right of User: Parameters:<br/>- Input: LAS file path<br/>- Output: web directory<br/>- Converter settings
@@ -121,7 +121,7 @@ sequenceDiagram
     participant Browser as 🌍 Browser/Client
 
     %% CKAN Registration Phase
-    rect rgb(248, 240, 255)
+    rect rgb(245, 230, 255)
         Note over User,CKAN: Phase 2: CKAN Registration & Cataloging
         User->>CKAN: Register resource
         Note right of User: Parameters info:<br/>- JSON5 file
@@ -194,7 +194,7 @@ sequenceDiagram
     participant Browser as 🌍 Browser/Client
 
     %% Discovery & Access Phase
-    rect rgb(255, 248, 240)
+    rect rgb(255, 245, 230)
         Note over User,Browser: Phase 3: Discovery & Access
         User->>CKAN: Search for point clouds
         Note right of User: Search criteria:<br/>- Geographic region<br/>- Classification types<br/>- Date range<br/>- Keywords
@@ -268,7 +268,7 @@ sequenceDiagram
     participant Browser as 🌍 Browser/Client
 
     %% Visualization Phase
-    rect rgb(240, 255, 240)
+    rect rgb(230, 255, 230)
         Note over Browser,Target: Phase 4: Local Visualization
         Browser->>Target: Load Potree viewer application
         Target-->>Browser: Return viewer files
@@ -342,7 +342,7 @@ sequenceDiagram
     participant Browser as 🌍 Browser/Client
 
     %% Collaboration & Sharing
-    rect rgb(255, 240, 245)
+    rect rgb(255, 230, 245)
         Note over User,Target: Phase 5: Collaboration & Sharing
         User->>Browser: Create annotations/measurements
         Browser->>Target: Save user data
