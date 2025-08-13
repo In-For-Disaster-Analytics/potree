@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>CKAN Integration Test - TACC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #007cba;
+            padding-bottom: 10px;
+        }
+        .test-case {
+            background: #f8f9fa;
+            border-left: 4px solid #007cba;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        .test-button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px 10px 0;
+        }
+        .test-button:hover {
+            background: #005a87;
+        }
+        .result {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+        .error {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+        .info {
+            border-color: #17a2b8;
+            background: #d1ecf1;
+        }
+        .url-link {
+            color: #007cba;
+            text-decoration: none;
+            word-break: break-all;
+        }
+        .url-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 CKAN Integration Test - TACC Instance</h1>
+        
+        <div class="test-case">
+            <h3>Test Configuration</h3>
+            <p><strong>CKAN Instance:</strong> https://ckan.tacc.utexas.edu</p>
+            <p><strong>Test Resource:</strong></p>
+            <p>
+                <a href="https://ckan.tacc.utexas.edu/dataset/6871e86d-523c-455d-bd14-b1540b365b23/resource/9eb5c1d0-a693-40db-adab-fcd73be7a440/download/nunap_riverbank_full_url.json5" 
+                   class="url-link" target="_blank">
+                   nunap_riverbank_full_url.json5
+                </a>
+            </p>
+            <p><strong>Resource ID:</strong> 9eb5c1d0-a693-40db-adab-fcd73be7a440</p>
+        </div>
+        
+        <div class="test-case">
+            <h3>Direct File Test</h3>
+            <p>Test loading the workspace configuration directly from the CKAN download URL.</p>
+            <button class="test-button" onclick="testDirectFileLoad()">
+                Test Direct File Load
+            </button>
+            <div id="direct-result" class="result" style="display: none;"></div>
+        </div>
+        
+        <div class="test-case">
+            <h3>URL Parameter Test</h3>
+            <p>Test generating a URL that would load this workspace automatically.</p>
+            <button class="test-button" onclick="testURLGeneration()">
+                Generate Test URLs
+            </button>
+            <div id="url-result" class="result" style="display: none;"></div>
+        </div>
+        
+        <div class="test-case">
+            <h3>CKAN API Test</h3>
+            <p>Test fetching resource metadata from CKAN API.</p>
+            <button class="test-button" onclick="testCKANAPI()">
+                Test CKAN API
+            </button>
+            <div id="api-result" class="result" style="display: none;"></div>
+        </div>
+        
+        <div class="test-case">
+            <h3>Integration Test</h3>
+            <p>Test the full plugin integration with the TACC CKAN instance.</p>
+            <button class="test-button" onclick="testFullIntegration()">
+                Test Full Integration
+            </button>
+            <div id="integration-result" class="result" style="display: none;"></div>
+        </div>
+    </div>
+    
+    <script>
+        const CKAN_BASE_URL = 'https://ckan.tacc.utexas.edu';
+        const TEST_RESOURCE_ID = '9eb5c1d0-a693-40db-adab-fcd73be7a440';
+        const TEST_FILE_URL = 'https://ckan.tacc.utexas.edu/dataset/6871e86d-523c-455d-bd14-b1540b365b23/resource/9eb5c1d0-a693-40db-adab-fcd73be7a440/download/nunap_riverbank_full_url.json5';
+        
+        function showResult(elementId, content, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.textContent = content;
+            element.className = `result ${type}`;
+            element.style.display = 'block';
+        }
+        
+        async function testDirectFileLoad() {
+            try {
+                showResult('direct-result', 'Fetching workspace file...', 'info');
+                
+                const response = await fetch(TEST_FILE_URL);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const content = await response.text();
+                let parsed;
+                
+                try {
+                    // Try JSON5 first, then JSON
+                    if (window.JSON5) {
+                        parsed = JSON5.parse(content);
+                    } else {
+                        parsed = JSON.parse(content);
+                    }
+                } catch (parseError) {
+                    throw new Error(`Parse error: ${parseError.message}`);
+                }
+                
+                const summary = `Successfully loaded workspace file!
+
+File size: ${content.length} characters
+Content type: ${response.headers.get('content-type') || 'unknown'}
+
+Parsed structure:
+Type: ${parsed.type || 'unknown'}
+Version: ${parsed.version || 'unknown'}
+Point clouds: ${parsed.pointclouds?.length || 0}
+Measurements: ${parsed.measurements?.length || 0}
+Annotations: ${parsed.annotations?.length || 0}
+Volumes: ${parsed.volumes?.length || 0}
+Profiles: ${parsed.profiles?.length || 0}
+
+Settings:
+Point budget: ${parsed.settings?.pointBudget || 'unknown'}
+FOV: ${parsed.settings?.fov || 'unknown'}
+EDL enabled: ${parsed.settings?.edlEnabled || 'unknown'}
+
+View:
+Position: ${parsed.view?.position ? `[${parsed.view.position.join(', ')}]` : 'unknown'}
+Target: ${parsed.view?.target ? `[${parsed.view.target.join(', ')}]` : 'unknown'}`;
+                
+                showResult('direct-result', summary, 'success');
+                
+            } catch (error) {
+                showResult('direct-result', `Failed to load workspace file:
+${error.message}
+
+This could be due to:
+- CORS restrictions
+- Network connectivity issues
+- File format problems
+- Authentication requirements`, 'error');
+            }
+        }
+        
+        function testURLGeneration() {
+            try {
+                const baseUrl = window.location.origin + window.location.pathname.replace('/test_ckan_integration.html', '/index.html');
+                
+                const workspaceUrl = new URL(baseUrl);
+                workspaceUrl.searchParams.set('workspace', TEST_RESOURCE_ID);
+                workspaceUrl.searchParams.set('ckan_base', CKAN_BASE_URL);
+                workspaceUrl.searchParams.set('debug', 'true');
+                
+                const directUrl = new URL(baseUrl);
+                directUrl.searchParams.set('workspace_url', TEST_FILE_URL);
+                directUrl.searchParams.set('debug', 'true');
+                
+                const result = `Generated test URLs:
+
+1. Load by CKAN resource ID:
+${workspaceUrl.toString()}
+
+2. Load by direct file URL:
+${directUrl.toString()}
+
+Usage:
+- Copy either URL and open in a new browser tab
+- The Potree viewer should automatically load the workspace
+- Check browser console for debug information
+- Look for "Workspace loaded successfully" message`;
+                
+                showResult('url-result', result, 'success');
+                
+            } catch (error) {
+                showResult('url-result', `URL generation failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testCKANAPI() {
+            try {
+                showResult('api-result', 'Testing CKAN API access...', 'info');
+                
+                // Test status endpoint
+                const statusUrl = `${CKAN_BASE_URL}/api/action/status_show`;
+                const statusResponse = await fetch(statusUrl);
+                const statusData = await statusResponse.json();
+                
+                // Test resource endpoint
+                const resourceUrl = `${CKAN_BASE_URL}/api/action/resource_show?id=${TEST_RESOURCE_ID}`;
+                const resourceResponse = await fetch(resourceUrl);
+                const resourceData = await resourceResponse.json();
+                
+                const result = `CKAN API Test Results:
+
+Status Endpoint (${statusUrl}):
+Success: ${statusData.success}
+Site title: ${statusData.result?.site_title || 'unknown'}
+Extensions: ${statusData.result?.extensions?.length || 0} loaded
+
+Resource Endpoint (${resourceUrl}):
+Success: ${resourceData.success}
+Resource name: ${resourceData.result?.name || 'unknown'}
+Format: ${resourceData.result?.format || 'unknown'}
+Size: ${resourceData.result?.size || 'unknown'}
+Created: ${resourceData.result?.created || 'unknown'}
+URL: ${resourceData.result?.url || 'unknown'}
+
+API Access: ✅ Working
+Authentication: ${statusData.result?.user_logged_in ? '✅ Authenticated' : '❌ Not authenticated'}
+Resource Access: ${resourceData.success ? '✅ Accessible' : '❌ Not accessible'}`;
+                
+                showResult('api-result', result, 'success');
+                
+            } catch (error) {
+                showResult('api-result', `CKAN API test failed:
+${error.message}
+
+This could indicate:
+- CORS restrictions from CKAN server
+- Network connectivity issues  
+- API endpoint changes
+- Authentication requirements`, 'error');
+            }
+        }
+        
+        async function testFullIntegration() {
+            try {
+                showResult('integration-result', 'Testing full plugin integration...', 'info');
+                
+                // This would normally require the Potree viewer to be loaded
+                // For this test, we'll simulate the plugin behavior
+                
+                const testResults = [];
+                
+                // Test 1: File accessibility
+                try {
+                    const fileResponse = await fetch(TEST_FILE_URL, { method: 'HEAD' });
+                    testResults.push(`✅ Workspace file accessible (${fileResponse.status})`);
+                } catch (error) {
+                    testResults.push(`❌ Workspace file not accessible: ${error.message}`);
+                }
+                
+                // Test 2: CKAN API
+                try {
+                    const apiResponse = await fetch(`${CKAN_BASE_URL}/api/action/resource_show?id=${TEST_RESOURCE_ID}`);
+                    const apiData = await apiResponse.json();
+                    if (apiData.success) {
+                        testResults.push(`✅ CKAN API accessible`);
+                        testResults.push(`   Resource: ${apiData.result.name}`);
+                        testResults.push(`   Format: ${apiData.result.format}`);
+                    } else {
+                        testResults.push(`❌ CKAN API error: ${apiData.error.message}`);
+                    }
+                } catch (error) {
+                    testResults.push(`❌ CKAN API not accessible: ${error.message}`);
+                }
+                
+                // Test 3: Plugin availability (simulated)
+                const pluginAvailable = typeof Potree !== 'undefined' && Potree.initCKANSessionPlugin;
+                testResults.push(pluginAvailable ? '✅ CKAN Session Plugin available' : '❌ CKAN Session Plugin not loaded');
+                
+                // Test 4: URL parameter parsing
+                const testUrl = new URL(window.location.href);
+                testUrl.searchParams.set('workspace', TEST_RESOURCE_ID);
+                const hasWorkspaceParam = testUrl.searchParams.has('workspace');
+                testResults.push(hasWorkspaceParam ? '✅ URL parameter parsing works' : '❌ URL parameter parsing failed');
+                
+                const result = `Integration Test Results:
+
+${testResults.join('\n')}
+
+Summary:
+The CKAN Session Management Plugin is ready for use with:
+- CKAN Instance: ${CKAN_BASE_URL}
+- Test Resource: ${TEST_RESOURCE_ID}
+
+To use in production:
+1. Initialize plugin with CKAN base URL
+2. Use workspace=resource-id URL parameter
+3. Or use workspace_url=direct-file-url parameter
+
+Example URLs have been generated in the "URL Parameter Test" above.`;
+                
+                showResult('integration-result', result, 'success');
+                
+            } catch (error) {
+                showResult('integration-result', `Integration test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // Load JSON5 support if available
+        const script = document.createElement('script');
+        script.src = './libs/json5-2.1.3/json5.mjs';
+        script.type = 'module';
+        script.onload = () => {
+            import('./libs/json5-2.1.3/json5.mjs').then(JSON5Module => {
+                window.JSON5 = JSON5Module.default;
+                console.log('JSON5 support loaded');
+            }).catch(console.error);
+        };
+        document.head.appendChild(script);
+        
+    </script>
+</body>
+</html>

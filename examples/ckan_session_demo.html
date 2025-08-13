@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="description" content="CKAN Session Management Plugin Demo" />
+    <meta name="author" content="" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
+    <title>Potree Viewer - CKAN Session Demo</title>
+
+    <link rel="stylesheet" type="text/css" href="../build/potree/potree.css" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="../libs/jquery-ui/jquery-ui.min.css"
+    />
+    <link rel="stylesheet" type="text/css" href="../libs/openlayers3/ol.css" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="../libs/spectrum/spectrum.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="../libs/jstree/themes/mixed/style.css"
+    />
+
+    <style>
+      .demo-controls {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 20px;
+        border-radius: 5px;
+        min-width: 300px;
+        z-index: 1000;
+        font-family: Arial, sans-serif;
+      }
+      .demo-controls h3 {
+        margin-top: 0;
+        color: #4caf50;
+      }
+      .demo-button {
+        display: block;
+        background: #4caf50;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 3px;
+        margin: 5px 0;
+        cursor: pointer;
+        text-decoration: none;
+        text-align: center;
+        font-size: 14px;
+      }
+      .demo-button:hover {
+        background: #45a049;
+      }
+      .demo-button.secondary {
+        background: #2196f3;
+      }
+      .demo-button.secondary:hover {
+        background: #1976d2;
+      }
+      .demo-button.danger {
+        background: #f44336;
+      }
+      .demo-button.danger:hover {
+        background: #d32f2f;
+      }
+      .demo-status {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 10px;
+        border-radius: 3px;
+        margin: 10px 0;
+        font-size: 12px;
+      }
+      .demo-input {
+        width: 100%;
+        padding: 8px;
+        margin: 5px 0;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        box-sizing: border-box;
+      }
+      .demo-textarea {
+        width: 100%;
+        height: 60px;
+        padding: 8px;
+        margin: 5px 0;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        box-sizing: border-box;
+        resize: vertical;
+      }
+      .demo-label {
+        display: block;
+        margin: 10px 0 5px 0;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+
+  <body>
+    <script src="../libs/jquery/jquery-3.1.1.min.js"></script>
+    <script src="../libs/spectrum/spectrum.js"></script>
+    <script src="../libs/jquery-ui/jquery-ui.min.js"></script>
+    <script src="../libs/other/BinaryHeap.js"></script>
+    <script src="../libs/tween/tween.min.js"></script>
+    <script src="../libs/d3/d3.js"></script>
+    <script src="../libs/proj4/proj4.js"></script>
+    <script src="../libs/openlayers3/ol.js"></script>
+    <script src="../libs/i18next/i18next.js"></script>
+    <script src="../libs/jstree/jstree.js"></script>
+    <script src="../build/potree/potree.js"></script>
+    <script src="../libs/plasio/js/laslaz.js"></script>
+
+    <div
+      class="potree_container"
+      style="position: absolute; width: 100%; height: 100%; left: 0px; top: 0px"
+    >
+      <div
+        id="potree_render_area"
+        style="
+          background-image: url('../build/potree/resources/images/background.jpg');
+        "
+      ></div>
+      <div id="potree_sidebar_container"></div>
+    </div>
+
+    <!-- Demo Controls -->
+    <div class="demo-controls">
+      <h3>🗂️ CKAN Session Plugin</h3>
+
+      <div class="demo-status" id="status">Status: Plugin not initialized</div>
+
+      <button class="demo-button" onclick="initializePlugin()">
+        Initialize Plugin
+      </button>
+
+      <button class="demo-button secondary" onclick="checkAuthentication()">
+        Check CKAN Authentication
+      </button>
+
+      <label class="demo-label">Workspace Title:</label>
+      <input
+        type="text"
+        class="demo-input"
+        id="workspaceTitle"
+        placeholder="My Analysis Session"
+        value="Demo Workspace"
+      />
+
+      <label class="demo-label">Description:</label>
+      <textarea
+        class="demo-textarea"
+        id="workspaceDescription"
+        placeholder="Description of this workspace..."
+      >
+This is a demo workspace showcasing CKAN session management functionality.</textarea
+      >
+
+      <button class="demo-button" onclick="saveWorkspace()">
+        💾 Save Workspace to CKAN
+      </button>
+
+      <label class="demo-label">Workspace ID:</label>
+      <input
+        type="text"
+        class="demo-input"
+        id="workspaceId"
+        placeholder="Enter workspace resource ID"
+      />
+
+      <button class="demo-button secondary" onclick="loadWorkspace()">
+        📂 Load Workspace from CKAN
+      </button>
+
+      <button class="demo-button secondary" onclick="generateShareURL()">
+        🔗 Generate Share URL
+      </button>
+
+      <button class="demo-button danger" onclick="clearWorkspace()">
+        🗑️ Clear Current Session
+      </button>
+
+      <div class="demo-status" id="output" style="display: none">
+        <strong>Output:</strong><br />
+        <div id="outputContent"></div>
+      </div>
+    </div>
+
+    <script type="module">
+      import * as THREE from '../libs/three.js/build/three.module.js';
+
+      window.viewer = null;
+      window.ckanSessionPlugin = null;
+
+      function updateStatus(message) {
+        document.getElementById('status').innerHTML = `Status: ${message}`;
+      }
+
+      function showOutput(content) {
+        const output = document.getElementById('output');
+        const outputContent = document.getElementById('outputContent');
+        outputContent.innerHTML = content;
+        output.style.display = 'block';
+      }
+
+      function hideOutput() {
+        document.getElementById('output').style.display = 'none';
+      }
+
+      // Initialize Potree viewer
+      window.viewer = new Potree.Viewer(
+        document.getElementById('potree_render_area'),
+      );
+      viewer.setEDLEnabled(true);
+      viewer.setFOV(60);
+      viewer.setPointBudget(1_000_000);
+      viewer.loadSettingsFromURL();
+
+      // Load a sample point cloud
+      Potree.loadPointCloud(
+        '../pointclouds/lion_takanawa/cloud.js',
+        'lion_takanawa',
+        (e) => {
+          let pointcloud = e.pointcloud;
+          let material = pointcloud.material;
+          material.size = 1;
+          material.pointSizeType = Potree.PointSizeType.ADAPTIVE;
+
+          viewer.scene.addPointCloud(pointcloud);
+          viewer.fitToScreen();
+        },
+      );
+
+      // Global functions for demo buttons
+      window.initializePlugin = function () {
+        try {
+          // Configure CKAN connection - update these values for your CKAN instance
+          const options = {
+            ckanBaseUrl: 'https://ckan.tacc.utexas.edu', // Replace with your CKAN URL
+            clientId: 'your-oauth-client-id', // Replace with your OAuth client ID
+            authenticationRequired: false, // Set to true for production
+            autoSave: false, // Disable auto-save for demo
+            onSave: (workspace) => {
+              updateStatus('Workspace saved successfully!');
+              showOutput(
+                `Workspace saved with ${workspace._metadata?.id || 'unknown ID'}`,
+              );
+            },
+            onLoad: (workspace) => {
+              updateStatus('Workspace loaded successfully!');
+              showOutput(
+                `Loaded workspace with ${workspace.annotations?.length || 0} annotations, ${workspace.measurements?.length || 0} measurements`,
+              );
+            },
+            onError: (error) => {
+              updateStatus(`Error: ${error.message}`);
+              showOutput(
+                `<span style="color: #ff6b6b;">${error.message}</span>`,
+              );
+            },
+            onAuthRequired: () => {
+              updateStatus('CKAN authentication required');
+              showOutput('Please authenticate with CKAN to save workspaces');
+            },
+            onAuthSuccess: (user) => {
+              updateStatus(`Authenticated as ${user.name}`);
+              showOutput(`Successfully logged in as: ${user.name}`);
+            },
+          };
+
+          window.ckanSessionPlugin = Potree.initCKANSessionPlugin(
+            viewer,
+            options,
+          );
+          updateStatus('Plugin initialized successfully');
+          hideOutput();
+        } catch (error) {
+          updateStatus(`Failed to initialize: ${error.message}`);
+          showOutput(`<span style="color: #ff6b6b;">${error.message}</span>`);
+        }
+      };
+
+      window.checkAuthentication = async function () {
+        if (!window.ckanSessionPlugin) {
+          updateStatus('Plugin not initialized');
+          return;
+        }
+
+        try {
+          updateStatus('Checking authentication...');
+          const sessionInfo = await window.ckanSessionPlugin.checkSession();
+
+          if (sessionInfo.authenticated) {
+            updateStatus(
+              `Authenticated as ${sessionInfo.user?.name || 'unknown user'}`,
+            );
+            showOutput(
+              `User: ${sessionInfo.user?.name || 'N/A'}<br>Token: ${sessionInfo.token ? 'Present' : 'None'}`,
+            );
+          } else {
+            updateStatus('Not authenticated');
+            showOutput('No active CKAN session found');
+          }
+        } catch (error) {
+          updateStatus(`Authentication check failed: ${error.message}`);
+          showOutput(`<span style="color: #ff6b6b;">${error.message}</span>`);
+        }
+      };
+
+      window.saveWorkspace = async function () {
+        if (!window.ckanSessionPlugin) {
+          updateStatus('Plugin not initialized');
+          return;
+        }
+
+        try {
+          updateStatus('Saving workspace...');
+          const title = document.getElementById('workspaceTitle').value;
+          const description = document.getElementById(
+            'workspaceDescription',
+          ).value;
+
+          const result = await window.ckanSessionPlugin.saveWorkspace({
+            title: title || 'Demo Workspace',
+            description: description || 'Demo workspace session',
+            packageId: 'demo-package', // Replace with actual package ID
+          });
+
+          // Store the workspace ID for loading
+          document.getElementById('workspaceId').value = result.id;
+        } catch (error) {
+          updateStatus(`Save failed: ${error.message}`);
+          showOutput(`<span style="color: #ff6b6b;">${error.message}</span>`);
+        }
+      };
+
+      window.loadWorkspace = async function () {
+        if (!window.ckanSessionPlugin) {
+          updateStatus('Plugin not initialized');
+          return;
+        }
+
+        const workspaceId = document.getElementById('workspaceId').value;
+        if (!workspaceId) {
+          updateStatus('Please enter a workspace ID');
+          return;
+        }
+
+        try {
+          updateStatus('Loading workspace...');
+          await window.ckanSessionPlugin.fetchWorkspace(workspaceId);
+        } catch (error) {
+          updateStatus(`Load failed: ${error.message}`);
+          showOutput(`<span style="color: #ff6b6b;">${error.message}</span>`);
+        }
+      };
+
+      window.generateShareURL = function () {
+        if (!window.ckanSessionPlugin) {
+          updateStatus('Plugin not initialized');
+          return;
+        }
+
+        const workspaceId = document.getElementById('workspaceId').value;
+        if (!workspaceId) {
+          updateStatus('Please enter a workspace ID');
+          return;
+        }
+
+        try {
+          const shareUrl =
+            window.ckanSessionPlugin.generateShareURL(workspaceId);
+          updateStatus('Share URL generated');
+          showOutput(
+            `<a href="${shareUrl}" target="_blank" style="color: #4CAF50;">${shareUrl}</a>`,
+          );
+        } catch (error) {
+          updateStatus(`Failed to generate URL: ${error.message}`);
+          showOutput(`<span style="color: #ff6b6b;">${error.message}</span>`);
+        }
+      };
+
+      window.clearWorkspace = function () {
+        if (
+          confirm(
+            'Are you sure you want to clear the current session? This will remove all annotations and measurements.',
+          )
+        ) {
+          // Clear annotations
+          viewer.scene.annotations.children.slice().forEach((annotation) => {
+            viewer.scene.annotations.remove(annotation);
+          });
+
+          // Clear measurements
+          viewer.scene.measurements.slice().forEach((measurement) => {
+            viewer.scene.removeMeasurement(measurement);
+          });
+
+          // Clear volumes
+          viewer.scene.volumes.slice().forEach((volume) => {
+            viewer.scene.removeVolume(volume);
+          });
+
+          // Reset view
+          viewer.fitToScreen();
+
+          updateStatus('Session cleared');
+          hideOutput();
+        }
+      };
+
+      // Add some demo annotations and measurements for testing
+      setTimeout(() => {
+        if (viewer.scene.pointclouds.length > 0) {
+          // Add a demo annotation
+          const annotation = new Potree.Annotation({
+            position: [0, 0, 0],
+            title: 'Demo Annotation',
+            description:
+              'This is a sample annotation for testing CKAN session management.',
+          });
+          viewer.scene.annotations.add(annotation);
+
+          updateStatus('Demo content loaded');
+        }
+      }, 3000);
+    </script>
+  </body>
+</html>
