@@ -44,7 +44,7 @@ sequenceDiagram
         Corral-->>Tapis: Return LAS data
 
         Tapis->>Potree: Execute conversion job
-        Note right of Potree: Potree Converter v2.1.1<br/>Processing steps:<br/>1. Parse LAS structure<br/>2. Build spatial octree<br/>3. Generate web tiles<br/>4. Create JSON5 config
+        Note right of Potree: Potree Converter v2.1.1<br/>Processing steps:<br/>1. Parse LAS structure<br/>2. Build spatial octree<br/>3. Generate web tiles<br/>4. Create scene.json5 config
 
         Potree->>Potree: Process point cloud data
         loop Generate LOD levels
@@ -53,7 +53,7 @@ sequenceDiagram
         end
 
         Potree->>Corral: Write processed files
-        Note right of Corral: Generated files:<br/>- cloud.js (octree)<br/>- hierarchy.bin<br/>- *.bin (point data)<br/>- potree_config.json5<br/>- metadata.json
+        Note right of Corral: Generated files:<br/>- cloud.js (octree)<br/>- hierarchy.bin<br/>- *.bin (point data)<br/>- scene.json5<br/>- metadata.json
 
 
         Corral->>Corral: Move data to web accessible folder
@@ -84,7 +84,7 @@ Potree Converter → Process point cloud data through multiple steps:
     1. Parse LAS structure and metadata
     2. Build spatial octree hierarchy
     3. Generate web-optimized tiles
-    4. Create JSON5 configuration file
+    4. Create scene.json5 configuration file
 ```
 
 #### Iterative Processing
@@ -100,7 +100,7 @@ Potree Converter → Process point cloud data through multiple steps:
 - `cloud.js` - Main octree structure file
 - `hierarchy.bin` - Spatial hierarchy data
 - `*.bin` files - Point data at various detail levels
-- `potree_config.json5` - Visualization configuration
+- `scene.json5` - Scene configuration
 - `metadata.json` - Processing and spatial metadata
 
 #### Critical Infrastructure Step
@@ -136,10 +136,10 @@ sequenceDiagram
     %% CKAN Registration Phase
     rect rgb(230, 245, 255)
         Note over User,CKAN: Phase 2: CKAN Registration & Cataloging
-        User->>CKAN: Register and upload JSON5 resource
-        Note right of User: Parameters info:<br/>- JSON5 file
+        User->>CKAN: Register and upload scene.json5 resource
+        Note right of User: Parameters info:<br/>- scene.json5 file
 
-        CKAN->>CKAN: Extract metadata from JSON5 [FUTURE]
+        CKAN->>CKAN: Extract metadata from scene.json5 [FUTURE]
         Note right of CKAN: Auto-extracted:<br/>- Bounding box<br/>- Classification types<br/>- Coordinate system<br/>- View parameters
 
         CKAN->>CKAN: Create resource entry with target URLs
@@ -153,18 +153,18 @@ sequenceDiagram
 #### Resource Registration
 
 - **User Action**: Register new resource in CKAN portal
-- **Primary Asset**: Upload Potree JSON5 configuration file
+- **Primary Asset**: Upload Potree scene.json5 configuration file
 - **Resource Type**: CKAN recognizes and categorizes as Potree visualization
 
 #### CKAN File Type Recognition
 
-- **Automatic Detection**: CKAN identifies JSON5 as Potree configuration
+- **Automatic Detection**: CKAN identifies scene.json5 as Potree configuration
 - **Specialized Handling**: Applies appropriate metadata extraction and preview capabilities
 - **Resource Classification**: Categorizes for specialized search and discovery
 
 #### Metadata Extraction (Future Enhancement)
 
-**Planned Auto-extraction from JSON5**:
+**Planned Auto-extraction from scene.json5**:
 
 - **Spatial Bounds**: Geographic bounding box coordinates
 - **Classification Schema**: Point cloud classification types and colors
@@ -215,7 +215,7 @@ sequenceDiagram
 
         User->>CKAN: Select dataset and resource
         CKAN-->>User: Provide target visualization URL
-        Note left of CKAN: URL points to deployed<br/>visualization on target server<br> Pass JSON5 as query parameters
+        Note left of CKAN: URL points to deployed<br/>visualization on target server<br> Pass scene.json5 as query parameters
 
         User->>Target: Access visualization URL
         Target->>Browser: Serve Potree viewer with local data
@@ -246,7 +246,7 @@ sequenceDiagram
 
 - **Resource Selection**: User chooses specific dataset and resource
 - **URL Generation**: CKAN provides target visualization URL
-- **Parameter Passing**: JSON5 configuration passed as query parameters
+- **Parameter Passing**: scene.json5 configuration passed as query parameters
 - **Seamless Transition**: Direct routing to visualization interface
 
 #### Technical Implementation
@@ -283,7 +283,7 @@ sequenceDiagram
         Browser->>Target: Load Potree viewer application
         Target-->>Browser: Return viewer files
 
-        Browser->>Target: Load JSON5 configuration
+        Browser->>Target: Load scene.json5 configuration
         Target-->>Browser: Return local config
 
         Browser->>Target: Request point cloud data
@@ -305,12 +305,12 @@ sequenceDiagram
 
 - **Potree Viewer Delivery**: Target server serves complete visualization application
 - **Local Data Access**: All point cloud data served from same infrastructure
-- **Configuration Loading**: JSON5 settings applied to viewer initialization by query parameters (https://<target-server>/potree/viewer.html?config=<config.json5>)
+- **Configuration Loading**: scene.json5 settings applied to viewer initialization by query parameters (https://<target-server>/potree/viewer.html?config=<scene.json5>)
 
 #### Data Streaming & Rendering
 
 ```
-Browser → Read the JSON5 configuration
+Browser → Read the scene.json5 configuration
 Browser -> Request point cloud data from Target Server
 Target Server → Stream octree tiles based on view level
 Browser → Adaptive loading based on user navigation
@@ -359,11 +359,11 @@ sequenceDiagram
         User->>Browser: Create annotations/measurements
         Browser->>Target: Save user data
         Note right of Target: Persistent state:<br/>- Annotations<br/>- Measurements<br/>- View bookmarks
-        User-->>Browser: Download JSON5
-        Browser-->>User: Provide JSON5 file
-        User->>CKAN: Upload JSON5 to CKAN (Create or replace?)
+        User-->>Browser: Download scene.json5
+        Browser-->>User: Provide scene.json5 file
+        User->>CKAN: Upload scene.json5 to CKAN (Create or replace?)
         Note right of User: Permanent link for<br/>collaboration & citation<br/>Points to target server
-        CKAN-->>User: Provide the sharable link. Url format: https://target-server/potree/viewer.html?config=<config.json5>
+        CKAN-->>User: Provide the sharable link. Url format: https://target-server/potree/viewer.html?config=<scene.json5>
         User->>User: Collaborate with team
         Note left of User: Shared access via<br/>stable target URLs
     end
@@ -418,7 +418,7 @@ sequenceDiagram
 ### Data Management
 
 - **FAIR Compliance**: Findable, Accessible, Interoperable, Reusable data
-- **Standardized Formats**: JSON5 configuration enables consistent metadata
+- **Standardized Formats**: scene.json5 configuration enables consistent metadata
 - **Automated Workflows**: Minimal manual intervention required
 - **Quality Control**: Validation and verification throughout pipeline
 
