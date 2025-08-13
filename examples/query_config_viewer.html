@@ -142,7 +142,7 @@
 		function parseURLParameters() {
 			const params = new URLSearchParams(window.location.search);
 			return {
-				config: params.get('config'),
+				scene: params.get('scene'),
 				pointcloud: params.get('pointcloud'),
 				debug: params.get('debug') === 'true'
 			};
@@ -380,9 +380,9 @@
 					console.log('URL Parameters:', urlParams);
 				}
 				
-				// Check if config parameter is provided
-				if (urlParams.config) {
-					configUrl = urlParams.config;
+				// Check if scene parameter is provided
+				if (urlParams.scene) {
+					configUrl = urlParams.scene;
 					await loadConfigurationFromURL(configUrl);
 				} else if (urlParams.pointcloud) {
 					// Direct point cloud loading (legacy support)
@@ -408,12 +408,12 @@
 						<h3>Potree Viewer - Query Parameter Configuration</h3>
 						<p>This viewer supports loading configurations via URL parameters:</p>
 						<ul>
-							<li><strong>?config=path/to/config.json5</strong> - Load a complete scene configuration</li>
+							<li><strong>?scene=path/to/config.json5</strong> - Load a complete scene configuration</li>
 							<li><strong>?pointcloud=path/to/cloud.js</strong> - Load a single point cloud</li>
 							<li><strong>?debug=true</strong> - Enable debug logging</li>
 						</ul>
-						<p>Example: <code>?config=./resources/sorvilier.json</code></p>
-						<p>For CKAN integration, use: <code>?config=https://your-server.com/path/to/config.json5</code></p>
+						<p>Example: <code>?scene=./resources/sorvilier.json</code></p>
+						<p>For CKAN integration, use: <code>?scene=https://your-server.com/path/to/config.json5</code></p>
 					`);
 				}
 				

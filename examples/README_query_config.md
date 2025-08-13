@@ -6,12 +6,12 @@ This implementation adds query parameter support to Potree viewer, enabling seam
 
 ### Basic Usage
 ```
-query_config_viewer.html?config=path/to/config.json5
+query_config_viewer.html?scene=path/to/config.json5
 ```
 
 ### CKAN Integration Example
 ```
-https://your-server.com/potree/query_config_viewer.html?config=https://ckan.example.org/dataset/resource/config.json5
+https://your-server.com/potree/query_config_viewer.html?scene=https://ckan.example.org/dataset/resource/config.json5
 ```
 
 ## 📁 Files Added
@@ -24,7 +24,7 @@ https://your-server.com/potree/query_config_viewer.html?config=https://ckan.exam
 ## ⚡ Features
 
 ### Core Functionality
-- ✅ **Query Parameter Parsing** - Parse `?config=`, `?pointcloud=`, `?debug=` parameters
+- ✅ **Query Parameter Parsing** - Parse `?scene=`, `?pointcloud=`, `?debug=` parameters
 - ✅ **JSON5 Support** - Load configurations with comments and relaxed syntax  
 - ✅ **Project Loading** - Full integration with Potree's `loadProject()` method
 - ✅ **Error Handling** - Comprehensive error reporting with user-friendly messages
@@ -81,7 +81,7 @@ The viewer supports standard Potree JSON/JSON5 project files with the following 
 
 | Parameter | Description | Example |
 |-----------|-------------|---------|
-| `config` | Path to JSON/JSON5 configuration file | `?config=./config.json5` |
+| `scene` | Path to JSON/JSON5 configuration file | `?scene=./config.json5` |
 | `pointcloud` | Direct point cloud loading (legacy) | `?pointcloud=../cloud.js` |
 | `debug` | Enable debug console logging | `?debug=true` |
 
@@ -126,7 +126,7 @@ The viewer supports standard Potree JSON/JSON5 project files with the following 
 3. Set up proper CORS headers if needed
 4. Test with the URL format:
    ```
-   https://your-potree-server.com/query_config_viewer.html?config=https://your-ckan.org/dataset/123/resource/456/download/config.json5
+   https://your-potree-server.com/query_config_viewer.html?scene=https://your-ckan.org/dataset/123/resource/456/download/config.json5
    ```
 
 ### CKAN Resource Configuration

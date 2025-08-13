@@ -305,7 +305,7 @@ sequenceDiagram
 
 - **Potree Viewer Delivery**: Target server serves complete visualization application
 - **Local Data Access**: All point cloud data served from same infrastructure
-- **Configuration Loading**: scene.json5 settings applied to viewer initialization by query parameters (https://<target-server>/potree/viewer.html?config=<scene.json5>)
+- **Configuration Loading**: scene.json5 settings applied to viewer initialization by query parameters (https://<target-server>/potree/viewer.html?scene=<scene.json5>)
 
 #### Data Streaming & Rendering
 
@@ -363,7 +363,7 @@ sequenceDiagram
         Browser-->>User: Provide scene.json5 file
         User->>CKAN: Upload scene.json5 to CKAN (Create or replace?)
         Note right of User: Permanent link for<br/>collaboration & citation<br/>Points to target server
-        CKAN-->>User: Provide the sharable link. Url format: https://target-server/potree/viewer.html?config=<scene.json5>
+        CKAN-->>User: Provide the sharable link. Url format: https://target-server/potree/viewer.html?scene=<scene.json5>
         User->>User: Collaborate with team
         Note left of User: Shared access via<br/>stable target URLs
     end

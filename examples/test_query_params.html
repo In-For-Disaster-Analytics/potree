@@ -95,21 +95,21 @@
 			<h4>Test 1: JSON5 Configuration Loading</h4>
 			<p>Load a complete scene configuration from a JSON5 file with comments and annotations.</p>
 		</div>
-		<a href="../index.html?config=./examples/resources/test_config.json5&debug=true" 
+		<a href="../index.html?scene=./examples/resources/test_config.json5&debug=true" 
 		   class="test-link" target="_blank">
 			🚀 Test JSON5 Config Loading
 		</a>
-		<div class="code">index.html?config=./examples/resources/test_config.json5&debug=true</div>
+		<div class="code">index.html?scene=./examples/resources/test_config.json5&debug=true</div>
 		
 		<div class="description">
 			<h4>Test 2: Existing JSON Configuration</h4>
 			<p>Load the existing Sorvilier project configuration to verify compatibility.</p>
 		</div>
-		<a href="../index.html?config=./examples/resources/sorvilier.json" 
+		<a href="../index.html?scene=./examples/resources/sorvilier.json" 
 		   class="test-link" target="_blank">
 			📊 Test JSON Config Loading
 		</a>
-		<div class="code">index.html?config=./examples/resources/sorvilier.json</div>
+		<div class="code">index.html?scene=./examples/resources/sorvilier.json</div>
 		
 		<div class="description">
 			<h4>Test 3: Direct Point Cloud Loading</h4>
@@ -125,11 +125,11 @@
 			<h4>Test 4: Error Handling</h4>
 			<p>Test error handling with an invalid configuration URL.</p>
 		</div>
-		<a href="../index.html?config=./examples/resources/nonexistent.json5&debug=true" 
+		<a href="../index.html?scene=./examples/resources/nonexistent.json5&debug=true" 
 		   class="test-link" target="_blank">
 			❌ Test Error Handling
 		</a>
-		<div class="code">index.html?config=./examples/resources/nonexistent.json5&debug=true</div>
+		<div class="code">index.html?scene=./examples/resources/nonexistent.json5&debug=true</div>
 		
 		<div class="description">
 			<h4>Test 5: No Parameters (Info Mode)</h4>
@@ -145,13 +145,13 @@
 		<div class="description">
 			<p>For CKAN integration, the URL would look like this:</p>
 		</div>
-		<div class="code">https://your-potree-server.com/?config=https://your-ckan.org/dataset/123/resource/456/download/config.json5</div>
+		<div class="code">https://your-potree-server.com/?scene=https://your-ckan.org/dataset/123/resource/456/download/config.json5</div>
 		
 		<h2>🛠️ Implementation Details</h2>
 		<div class="status info">
 			<strong>Key Features Implemented:</strong>
 			<ul>
-				<li>✅ Query parameter parsing (<code>?config=path</code>)</li>
+				<li>✅ Query parameter parsing (<code>?scene=path</code>)</li>
 				<li>✅ JSON5 configuration support with comments</li>
 				<li>✅ Robust error handling with user-friendly messages</li>
 				<li>✅ Security validation (same-origin policy)</li>
@@ -166,7 +166,7 @@
 		<div class="description">
 			<h4>Basic Usage:</h4>
 			<ul>
-				<li><code>?config=path/to/config.json5</code> - Load complete configuration</li>
+				<li><code>?scene=path/to/config.json5</code> - Load complete configuration</li>
 				<li><code>?pointcloud=path/to/cloud.js</code> - Load single point cloud</li>
 				<li><code>?debug=true</code> - Enable debug console logging</li>
 			</ul>
