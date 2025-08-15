@@ -142,11 +142,8 @@
 		function parseURLParameters() {
 			const params = new URLSearchParams(window.location.search);
 			return {
-				scene: params.get('scene'),
+				config: params.get('config'),
 				pointcloud: params.get('pointcloud'),
-				workspace: params.get('workspace'),
-				workspace_url: params.get('workspace_url'),
-				ckan_base: params.get('ckan_base'),
 				debug: params.get('debug') === 'true'
 			};
 		}
@@ -274,52 +271,6 @@
 			});
 		}
 		
-		// Load workspace from CKAN
-		async function loadWorkspaceFromCKAN() {
-			try {
-				showLoading();
-				
-				// Initialize viewer if not already done
-				if (!window.viewer) {
-					await initializeViewer();
-				}
-				
-				// Initialize CKAN Session Plugin
-				const ckanOptions = {
-					ckanBaseUrl: urlParams.ckan_base || 'https://demo.ckan.org',
-					authenticationRequired: false, // Don't require auth for loading workspaces
-					onError: (error) => {
-						console.error('CKAN Session Error:', error);
-						showError('Workspace Loading Error', error.message, error.stack);
-					},
-					onLoad: (workspace) => {
-						console.log('Workspace loaded successfully:', workspace);
-						hideLoading();
-						hideError();
-					}
-				};
-				
-				const ckanPlugin = Potree.initCKANSessionPlugin(viewer, ckanOptions);
-				
-				// Load workspace based on parameters
-				if (urlParams.workspace) {
-					// Load by workspace resource ID
-					await ckanPlugin.fetchWorkspace(urlParams.workspace);
-				} else if (urlParams.workspace_url) {
-					// Load by direct workspace URL
-					await ckanPlugin.fetchWorkspaceFromURL(urlParams.workspace_url);
-				}
-				
-				if (urlParams.debug) {
-					console.log('Workspace loading completed');
-				}
-				
-			} catch (error) {
-				console.error('Workspace loading error:', error);
-				showError('Workspace Loading Error', error.message, error.stack);
-			}
-		}
-		
 		// Load configuration and apply to viewer
 		async function loadConfigurationFromURL(configUrl) {
 			try {
@@ -429,12 +380,9 @@
 					console.log('URL Parameters:', urlParams);
 				}
 				
-				// Check for workspace parameters first (highest priority)
-				if (urlParams.workspace || urlParams.workspace_url) {
-					await loadWorkspaceFromCKAN();
-				} else if (urlParams.scene) {
-					// Check if scene parameter is provided
-					configUrl = urlParams.scene;
+				// Check if config parameter is provided
+				if (urlParams.config) {
+					configUrl = urlParams.config;
 					await loadConfigurationFromURL(configUrl);
 				} else if (urlParams.pointcloud) {
 					// Direct point cloud loading (legacy support)
@@ -460,19 +408,12 @@
 						<h3>Potree Viewer - Query Parameter Configuration</h3>
 						<p>This viewer supports loading configurations via URL parameters:</p>
 						<ul>
-							<li><strong>?scene=path/to/config.json5</strong> - Load a complete scene configuration</li>
+							<li><strong>?config=path/to/config.json5</strong> - Load a complete scene configuration</li>
 							<li><strong>?pointcloud=path/to/cloud.js</strong> - Load a single point cloud</li>
-							<li><strong>?workspace=resource-id</strong> - Load CKAN workspace by resource ID</li>
-							<li><strong>?workspace_url=direct-url</strong> - Load workspace from direct URL</li>
-							<li><strong>?ckan_base=ckan-url</strong> - Specify CKAN base URL (optional)</li>
 							<li><strong>?debug=true</strong> - Enable debug logging</li>
 						</ul>
-						<p>Examples:</p>
-						<ul>
-							<li><code>?scene=./examples/resources/sorvilier.json</code></li>
-							<li><code>?workspace=abc123&ckan_base=https://your-ckan.org</code></li>
-							<li><code>?workspace_url=https://your-server.com/workspace.json</code></li>
-						</ul>
+						<p>Example: <code>?config=./examples/resources/sorvilier.json</code></p>
+						<p>For CKAN integration, use: <code>?config=https://your-server.com/path/to/config.json5</code></p>
 					`);
 				}
 				
