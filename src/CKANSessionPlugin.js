@@ -53,7 +53,6 @@ export class CKANSessionPlugin extends EventDispatcher {
 
   /**
    * Check current authentication status with CKAN
-   * Note: status_show doesn't return auth info, so we check for stored tokens
    */
   async checkSession() {
     if (!this.ckanBaseUrl) {
@@ -61,114 +60,30 @@ export class CKANSessionPlugin extends EventDispatcher {
     }
 
     try {
-      // Check if we have a stored access token
-      const storedToken = localStorage.getItem('ckan_access_token');
-      if (storedToken) {
-        this.accessToken = storedToken;
-        
-        // Verify token is still valid by making an authenticated request
-        const testResponse = await fetch(`${this.ckanBaseUrl}/api/action/user_show`, {
+      const response = await fetch(
+        `${this.ckanBaseUrl}/api/action/status_show`,
+        {
+          credentials: 'include',
           headers: {
-            'Authorization': `Bearer ${storedToken}`,
             'Content-Type': 'application/json',
           },
-        });
-        
-        if (testResponse.ok) {
-          const userData = await testResponse.json();
-          if (userData.success) {
-            return {
-              authenticated: true,
-              user: userData.result,
-              token: storedToken,
-            };
-          }
-        }
-        
-        // Token is invalid, clear it
-        localStorage.removeItem('ckan_access_token');
-        this.accessToken = null;
-      }
-
-      // Check if we're in the middle of an OAuth callback
-      const urlParams = new URLSearchParams(window.location.search);
-      const authCode = urlParams.get('code');
-      
-      if (authCode && !this.accessToken) {
-        try {
-          await this.handleOAuthCallback(authCode);
-          const newToken = localStorage.getItem('ckan_access_token');
-          if (newToken) {
-            return {
-              authenticated: true,
-              user: { name: 'OAuth User' }, // Will be updated after proper user fetch
-              token: newToken,
-            };
-          }
-        } catch (error) {
-          console.error('OAuth callback error:', error);
-        }
-      }
-
-      return { authenticated: false, user: null, token: null };
-    } catch (error) {
-      this.onError(error);
-      return { authenticated: false, user: null, token: null };
-    }
-  }
-
-  /**
-   * Handle OAuth callback with authorization code
-   */
-  async handleOAuthCallback(authCode) {
-    if (!this.clientId) {
-      throw new Error('OAuth client ID not configured');
-    }
-
-    try {
-      // Exchange authorization code for access token
-      const tokenResponse = await fetch(`${this.ckanBaseUrl}/oauth/token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: new URLSearchParams({
-          grant_type: 'authorization_code',
-          client_id: this.clientId,
-          code: authCode,
-          redirect_uri: window.location.origin + window.location.pathname,
-        }),
-      });
+      );
 
-      if (!tokenResponse.ok) {
-        throw new Error(`Token exchange failed: ${tokenResponse.statusText}`);
-      }
+      const data = await response.json();
 
-      const tokenData = await tokenResponse.json();
-      
-      if (tokenData.access_token) {
-        this.accessToken = tokenData.access_token;
-        this.refreshToken = tokenData.refresh_token;
-        
-        // Store tokens for future use
-        localStorage.setItem('ckan_access_token', tokenData.access_token);
-        if (tokenData.refresh_token) {
-          localStorage.setItem('ckan_refresh_token', tokenData.refresh_token);
-        }
-        
-        // Clean up URL
-        const url = new URL(window.location);
-        url.searchParams.delete('code');
-        url.searchParams.delete('state');
-        window.history.replaceState({}, document.title, url.toString());
-        
-        return tokenData;
+      if (data.success) {
+        return {
+          authenticated: data.result.user_logged_in || false,
+          user: data.result.user || null,
+          token: data.result.oauth_token || null,
+        };
       } else {
-        throw new Error('No access token received');
+        return { authenticated: false, user: null, token: null };
       }
     } catch (error) {
       this.onError(error);
-      throw error;
+      return { authenticated: false, user: null, token: null };
     }
   }
 
@@ -208,64 +123,10 @@ export class CKANSessionPlugin extends EventDispatcher {
     const redirectUri = encodeURIComponent(
       window.location.origin + window.location.pathname,
     );
-    const state = Math.random().toString(36).substring(2, 15);
-    localStorage.setItem('oauth_state', state);
-    
-    const authUrl = `${this.ckanBaseUrl}/oauth/authorize?client_id=${this.clientId}&response_type=code&redirect_uri=${redirectUri}&state=${state}`;
+    const authUrl = `${this.ckanBaseUrl}/oauth/authorize?client_id=${this.clientId}&response_type=code&redirect_uri=${redirectUri}`;
 
     window.location.href = authUrl;
     return false; // Will redirect, so return false for now
-  }
-
-  /**
-   * Refresh access token using refresh token
-   */
-  async refreshAccessToken() {
-    const refreshToken = localStorage.getItem('ckan_refresh_token');
-    if (!refreshToken || !this.clientId) {
-      throw new Error('No refresh token available or client ID not configured');
-    }
-
-    try {
-      const response = await fetch(`${this.ckanBaseUrl}/oauth/token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          grant_type: 'refresh_token',
-          client_id: this.clientId,
-          refresh_token: refreshToken,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Token refresh failed: ${response.statusText}`);
-      }
-
-      const tokenData = await response.json();
-      
-      if (tokenData.access_token) {
-        this.accessToken = tokenData.access_token;
-        localStorage.setItem('ckan_access_token', tokenData.access_token);
-        
-        if (tokenData.refresh_token) {
-          this.refreshToken = tokenData.refresh_token;
-          localStorage.setItem('ckan_refresh_token', tokenData.refresh_token);
-        }
-        
-        return tokenData;
-      } else {
-        throw new Error('No access token received from refresh');
-      }
-    } catch (error) {
-      // Clear invalid tokens
-      localStorage.removeItem('ckan_access_token');
-      localStorage.removeItem('ckan_refresh_token');
-      this.accessToken = null;
-      this.refreshToken = null;
-      throw error;
-    }
   }
 
   /**
@@ -353,6 +214,7 @@ export class CKANSessionPlugin extends EventDispatcher {
         `${this.ckanBaseUrl}/api/action/resource_create`,
         {
           method: 'POST',
+          credentials: 'include',
           headers: headers,
           body: formData,
         },
@@ -374,45 +236,7 @@ export class CKANSessionPlugin extends EventDispatcher {
 
         return result.result;
       } else {
-        // If unauthorized, try to refresh token and retry once
-        if (response.status === 401 && this.refreshToken) {
-          try {
-            await this.refreshAccessToken();
-            // Retry the request with new token
-            const retryHeaders = {
-              'Authorization': `Bearer ${this.accessToken}`,
-            };
-            
-            const retryResponse = await fetch(
-              `${this.ckanBaseUrl}/api/action/resource_create`,
-              {
-                method: 'POST',
-                headers: retryHeaders,
-                body: formData,
-              },
-            );
-            
-            const retryResult = await retryResponse.json();
-            if (retryResult.success) {
-              this.currentWorkspace = {
-                ...workspaceData,
-                _metadata: retryResult.result,
-              };
-
-              this.onSave(this.currentWorkspace);
-              this.dispatchEvent({
-                type: 'workspaceSaved',
-                workspace: this.currentWorkspace,
-              });
-
-              return retryResult.result;
-            }
-          } catch (refreshError) {
-            console.error('Token refresh failed:', refreshError);
-          }
-        }
-        
-        throw new Error(result.error && result.error.message || 'Failed to save workspace');
+        throw new Error(result.error.message || 'Failed to save workspace');
       }
     } catch (error) {
       this.onError(error);
@@ -430,14 +254,9 @@ export class CKANSessionPlugin extends EventDispatcher {
 
     try {
       // Get resource metadata
-      const headers = {};
-      if (this.accessToken) {
-        headers['Authorization'] = `Bearer ${this.accessToken}`;
-      }
-      
       const resourceResponse = await fetch(
         `${this.ckanBaseUrl}/api/action/resource_show?id=${resourceId}`,
-        { headers },
+        { credentials: 'include' },
       );
 
       const resourceData = await resourceResponse.json();
@@ -449,13 +268,8 @@ export class CKANSessionPlugin extends EventDispatcher {
       }
 
       // Download workspace file
-      const fileHeaders = {};
-      if (this.accessToken) {
-        fileHeaders['Authorization'] = `Bearer ${this.accessToken}`;
-      }
-      
       const fileResponse = await fetch(resourceData.result.url, {
-        headers: fileHeaders,
+        credentials: 'include',
       });
 
       if (!fileResponse.ok) {
