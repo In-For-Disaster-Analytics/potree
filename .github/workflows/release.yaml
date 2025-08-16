@@ -65,6 +65,10 @@ jobs:
 
           echo "Creating tarball from $BUILD_DIR directory..."
 
+          # Copy libs directory to build output
+          echo "Copying libs directory to build output..."
+          cp -r libs "$BUILD_DIR/"
+
           # Get version from tag or input
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             VERSION="${{ github.event.inputs.tag_name }}"
